@@ -4,8 +4,6 @@ using namespace std;
 
 
 int main(int argc, char const *argv[]) {
-  int viewNum, lineNum;
-  int viewId, viewCost, parentId, topViewId, maxCost = -1;
   int n = 0, d = 0;
   string dbFileName;
 

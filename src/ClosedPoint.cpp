@@ -11,6 +11,21 @@ typedef pair<double, pair<Object*, Object*> > CPL;
 typedef pair<double, pair<int, int> > CPM;
 
 
+void outputObj(Object & one) {
+
+  for (int i = 0; i < 28; ++i) {
+    for (int j = 0; j < 28; ++j) {
+      cout << one.getVal(i * 28 + j);
+      if (one.getVal(i * 28 + j) >= 100) cout << " ";
+      else if (one.getVal(i * 28 + j) >= 10) cout << "  ";
+      else cout << "   ";
+    }
+    cout << endl;
+  }
+
+  cout << endl << endl;
+}
+
 // main function
 // S int for obj num, double for distance
 
@@ -30,15 +45,17 @@ CPM min(CPM & a, CPM b, CPM c) {
 }
 
 int quickSort(vector<S> & rpS, int start, int end) {
-  S sentry = rpS[start];
-  while (start < end) {
-      while (start < end && rpS[end].second > sentry.second) --end;
-      rpS[start] = rpS[end];
-      while (start < end && rpS[start].second <= sentry.second) ++start;
-      rpS[end] = rpS[start];
+  swap(rpS[start], rpS[(start + end) / 2]);
+  S pivot = rpS[start];
+  int last_small = start;
+  for (int i = start + 1; i <= end; ++i) {
+    if (rpS[i].second < pivot.second) {
+      last_small = last_small + 1;
+      swap(rpS[last_small], rpS[i]);
+    }
   }
-  rpS[start] = sentry;
-  return start;
+  swap(rpS[start], rpS[last_small]);
+  return last_small;
 }
 
 int median(vector<S> & rpS, int start, int end, int mid) {
@@ -46,7 +63,7 @@ int median(vector<S> & rpS, int start, int end, int mid) {
   int pivot = quickSort(rpS, start, end);
   if (pivot < mid)
     return median(rpS, pivot + 1, end, mid);
-  if (start > mid)
+  if (pivot > mid)
     return median(rpS, start, pivot - 1, mid);
   return pivot;
 }
@@ -57,12 +74,13 @@ CPM ClosestPairMedian(vector<S> & rpS, int start, int end) {
   }
   if (end - start == 1) {
     if (rpS[start].second > rpS[end].second) swap(rpS[start], rpS[end]);
+    if (rpS[end].second - rpS[start].second < 0) cout << "error" << endl;
     return CPM(rpS[end].second - rpS[start].second, pair<int, int>(rpS[start].first, rpS[end].first));
   }
   int m = median(rpS, start, end, start + (end - start) / 2);
   CPM cpm1 = ClosestPairMedian(rpS, start, m);
   CPM cpm2 = ClosestPairMedian(rpS, m + 1, end);
-  CPM cpm12(rpS[m + 1].second - rpS[m].second, pair<int, int>(rpS[m].first, rpS[m + 1].first));
+  CPM cpm12(abs(rpS[m + 1].second - rpS[m].second), pair<int, int>(rpS[m].first, rpS[m + 1].first));
   return min(cpm1, cpm2, cpm12);
 }
 
@@ -70,8 +88,6 @@ CPL ClosestPairLine(vector<S> & rpS, vector<Object*> db) {
   CPM cpm = ClosestPairMedian(rpS, 0, rpS.size() - 1);
   return CPL(cpm.first, pair<Object*, Object*>(db[cpm.second.first], db[cpm.second.second]));
 }
-
-
 
 // PointMultiply of aj and oi
 
@@ -86,19 +102,21 @@ double PointMultiply(vector<double> & aj, Object & oi) {
 
 // Box-Muller method to generate a random variable from N(0, 1) and get a random d vector
 
-vector<double>* BoxMullerVector(int d) {
-  vector<double>* result = new vector<double>();
+void BoxMullerVector(vector<vector<double>*> & result, int m, int d) {
   time_t t;
   srand((unsigned) time(&t));
   double U1, U2, X1;
-  for (int i = 0; i < d; ++i) {
-    U1 = rand() / double(RAND_MAX);
-    while (U1 == 0) U1 = rand() / double(RAND_MAX); // log not zero
-    U2 = rand() / double(RAND_MAX);
-    X1 = sqrt(-2 * log(U1)) * cos(2 * M_PI * U2);
-    result->push_back(X1);
+  for (int j = 0; j < m; ++j) {
+    vector<double>* newOne = new vector<double>();
+    for (int i = 0; i < d; ++i) {
+      U1 = rand() / double(RAND_MAX);
+      while (U1 == 0) U1 = rand() / double(RAND_MAX); // log not zero
+      U2 = rand() / double(RAND_MAX);
+      X1 = sqrt(-2 * log(U1)) * cos(2 * M_PI * U2);
+      newOne->push_back(U1);
+    }
+    result.push_back(newOne);
   }
-  return result;
 }
 
 // RandomRrojection
@@ -107,9 +125,7 @@ vector<vector<S>*>* RandomRrojection(vector<Object*> db, int m, int d) {
   vector<vector<double>*> a;
   vector<vector<S>*>* result = new vector<vector<S>*>();
   // 1. generate a set of m random projection vector
-  for (int i = 0; i < m; ++i) {
-    a.push_back(BoxMullerVector(d));
-  }
+  BoxMullerVector(a, m, d);
 
   // 2. empty Sj
   for (int j = 0; j < m; ++j) {
@@ -125,8 +141,6 @@ vector<vector<S>*>* RandomRrojection(vector<Object*> db, int m, int d) {
       (*result)[j]->push_back(S(i, vij));
     }
   }
-  cout << "=---debug---=" << endl;
-  cout << (*((*result)[0])).size() << endl;
 
   // free memory of a
   for (int i = 0; i < a.size(); ++i) {
@@ -150,10 +164,9 @@ pair<Object*, Object*> ClosestPair(vector<Object*> db, int m, int d) {
   for (int i = 0; i < m; ++i) {
     CPL cpl = ClosestPairLine(*((*dbS)[i]), db);
     double dist = Object::distance(*(cpl.second.first), *(cpl.second.second));
-    if (dist < min || min == -1) {
+    if (dist <= min || min == -1) {
       min = dist;
       cp = cpl.second;
-      cout << min << "-----------" << endl;
     }
   }
 
@@ -164,7 +177,7 @@ pair<Object*, Object*> ClosestPair(vector<Object*> db, int m, int d) {
 
   delete dbS;
 
-  return pair<Object*, Object*>(db[0], db[1]);
+  return cp;
 }
 
 
@@ -198,6 +211,9 @@ int main(int argc, char const *argv[]) {
   }
   /* get n and d and f and check */
 
+  // start
+  time_t start,stop;
+  start = time(NULL);
 
   int ignoreNum;
   int pixel;
@@ -218,38 +234,14 @@ int main(int argc, char const *argv[]) {
     database.push_back(newOne);
   }
 
-  // get database success
-
   int m = 100;
-
   pair<Object*, Object*> cp = ClosestPair(database, m, d);
-
-  // TODO: output Pair
 
   Object* one = cp.first;
   Object* two = cp.second;
 
-  for (int i = 0; i < 28; ++i) {
-    for (int j = 0; j < 28; ++j) {
-      cout << one->getVal(i * 27 + j);
-      if (one->getVal(i * 27 + j) >= 100) cout << " ";
-      else if (one->getVal(i * 27 + j) >= 10) cout << "  ";
-      else cout << "   ";
-    }
-    cout << endl;
-  }
-
-  cout << endl << endl;
-
-  for (int i = 0; i < 28; ++i) {
-    for (int j = 0; j < 28; ++j) {
-      cout << two->getVal(i * 27 + j);
-      if (two->getVal(i * 27 + j) >= 100) cout << " ";
-      else if (two->getVal(i * 27 + j) >= 10) cout << "  ";
-      else cout << "   ";
-    }
-    cout << endl;
-  }
+  outputObj(*one);
+  outputObj(*two);
 
   for (int i = 0; i < database.size(); ++i) {
     delete database[i];
@@ -257,27 +249,8 @@ int main(int argc, char const *argv[]) {
 
   fclose(inputFile);
 
+  stop = time(NULL);
+  printf("Total Use Time: %lds\n", (stop - start));
+
   return 0;
 }
-
-
-
-  // ofstream outputFile;
-  // outputFile.open("example.txt");
-
-
-
-  // while (len--) {
-  //   for (int i = 0; i < 28; ++i) {
-  //     for (int j = 0; j < 28; ++j) {
-  //       fread( &pixel, sizeof(char), 1, inputFile );
-  //       outputFile << (int) pixel;
-  //       if ((int)pixel >= 100) outputFile << " ";
-  //       else if ((int)pixel >= 10) outputFile << "  ";
-  //       else outputFile << "   ";
-  //     }
-  //     outputFile << endl;
-  //   }
-  //   outputFile << endl;
-  // }
-  // outputFile.close();

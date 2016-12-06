@@ -11,6 +11,8 @@ The param d is the dimensionality of one object.<br>
 The param n is the number of Objects in db to calculate the Closest Pair.<br>
 The param f is the filename of db and it provide those objects to calculate. [database infomation](http://yann.lecun.com/exdb/mnist/)<br>
 And we limit the number of the random projection lines to 100. 
+
 ## Cost Time
-**cp***(using Algorithm 1&2&3)* about **34.7s** AND **cp2***(using Algorithm 1&2&4)* about **34.2s**<br>
+In MacBook Pro (2.7 GHz Intel Core i5, 16 GB 1867 MHz DDR3).<br>
+**cp** *(using Algorithm 1&2&3)* about **34.7s** AND **cp2***(using Algorithm 1&2&4)* about **34.2s**<br>
 But it will has different time because of the random algorithm is uncertain, but **cp2** mostly faster than **cp**

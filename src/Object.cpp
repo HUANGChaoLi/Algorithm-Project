@@ -23,9 +23,23 @@ double Object::distance(Object & a, Object & b) {
 
 void Object::setVal(int d, int val) {
   _val[d] = val;
-  // cout << _val[d];
 }
 
 int Object::getVal(int d) {
   return _val[d];
+}
+
+ostream& operator<<(ostream& os, const Object& obj) {
+  int line = sqrt(obj._d);
+  for (int i = 0; i < line; ++i) {
+    for (int j = 0; j < line; ++j) {
+      os << obj._val[i * line + j];
+      if (obj._val[i * line + j] >= 100) os << " ";
+      else if (obj._val[i * line + j] >= 10) os << "  ";
+      else os << "   ";
+    }
+    os << endl;
+  }
+  os << endl << endl;
+  return os;
 }

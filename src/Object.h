@@ -1,5 +1,7 @@
 #ifndef __OBJECT__
 #define __OBJECT__
+#include <iostream>
+using namespace std;
 
 class Object {
   private :
@@ -15,6 +17,8 @@ class Object {
 
     // public function for getting a certain dimension value
     int getVal(int d);
+
+    friend ostream& operator<<(ostream& os, const Object& obj);
 
     Object(int d);
     ~Object();

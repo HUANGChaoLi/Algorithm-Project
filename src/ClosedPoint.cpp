@@ -10,22 +10,6 @@ typedef pair<int, double> S;
 typedef pair<double, pair<Object*, Object*> > CPL;
 typedef pair<double, pair<int, int> > CPM;
 
-
-void outputObj(Object & one) {
-
-  for (int i = 0; i < 28; ++i) {
-    for (int j = 0; j < 28; ++j) {
-      cout << one.getVal(i * 28 + j);
-      if (one.getVal(i * 28 + j) >= 100) cout << " ";
-      else if (one.getVal(i * 28 + j) >= 10) cout << "  ";
-      else cout << "   ";
-    }
-    cout << endl;
-  }
-
-  cout << endl << endl;
-}
-
 // main function
 // S int for obj num, double for distance
 
@@ -39,12 +23,10 @@ CPM min(CPM & a, CPM b, CPM c) {
   if ((a.first != -1) && (a.first <= b.first || b.first == -1) && (a.first <= c.first || c.first == -1)) return a;
   if ((b.first != -1) && (b.first <= a.first || a.first == -1) && (b.first <= c.first || c.first == -1)) return b;
   if ((c.first != -1) && (c.first <= a.first || a.first == -1) && (c.first <= b.first || b.first == -1)) return c;
-  cout << "some thing error in min function!!!" << endl;
-  cout << a.first << " " << b.first << " " << c.first << endl;
   return c;
 }
 
-int quickSort(vector<S> & rpS, int start, int end) {
+int findMedianByQS(vector<S> & rpS, int start, int end) {
   swap(rpS[start], rpS[(start + end) / 2]);
   S pivot = rpS[start];
   int last_small = start;
@@ -60,7 +42,7 @@ int quickSort(vector<S> & rpS, int start, int end) {
 
 int median(vector<S> & rpS, int start, int end, int mid) {
   if (start >= mid || start >= end) return start;
-  int pivot = quickSort(rpS, start, end);
+  int pivot = findMedianByQS(rpS, start, end);
   if (pivot < mid)
     return median(rpS, pivot + 1, end, mid);
   if (pivot > mid)
@@ -74,7 +56,6 @@ CPM ClosestPairMedian(vector<S> & rpS, int start, int end) {
   }
   if (end - start == 1) {
     if (rpS[start].second > rpS[end].second) swap(rpS[start], rpS[end]);
-    if (rpS[end].second - rpS[start].second < 0) cout << "error" << endl;
     return CPM(rpS[end].second - rpS[start].second, pair<int, int>(rpS[start].first, rpS[end].first));
   }
   int m = median(rpS, start, end, start + (end - start) / 2);
@@ -240,8 +221,7 @@ int main(int argc, char const *argv[]) {
   Object* one = cp.first;
   Object* two = cp.second;
 
-  outputObj(*one);
-  outputObj(*two);
+  cout << *one << *two;
 
   for (int i = 0; i < database.size(); ++i) {
     delete database[i];

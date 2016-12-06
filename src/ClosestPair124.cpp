@@ -26,8 +26,8 @@ CPM min(CPM & a, CPM b, CPM c) {
   return c;
 }
 
-int findMedianByQS(vector<S> & rpS, int start, int end) {
-  swap(rpS[start], rpS[(start + end) / 2]);
+int randomDistribute(vector<S> & rpS, int start, int end, int randomPivot) {
+  swap(rpS[start], rpS[randomPivot]);
   S pivot = rpS[start];
   int last_small = start;
   for (int i = start + 1; i <= end; ++i) {
@@ -40,17 +40,7 @@ int findMedianByQS(vector<S> & rpS, int start, int end) {
   return last_small;
 }
 
-int median(vector<S> & rpS, int start, int end, int mid) {
-  if (start >= mid || start >= end) return start;
-  int pivot = findMedianByQS(rpS, start, end);
-  if (pivot < mid)
-    return median(rpS, pivot + 1, end, mid);
-  if (pivot > mid)
-    return median(rpS, start, pivot - 1, mid);
-  return pivot;
-}
-
-CPM ClosestPairMedian(vector<S> & rpS, int start, int end) {
+CPM ClosestPairPivot(vector<S> & rpS, int start, int end) {
   if (end - start <= 0) {
     return CPM(-1, pair<int, int>(-1, -1));
   }
@@ -58,15 +48,16 @@ CPM ClosestPairMedian(vector<S> & rpS, int start, int end) {
     if (rpS[start].second > rpS[end].second) swap(rpS[start], rpS[end]);
     return CPM(rpS[end].second - rpS[start].second, pair<int, int>(rpS[start].first, rpS[end].first));
   }
-  int m = median(rpS, start, end, start + (end - start) / 2);
-  CPM cpm1 = ClosestPairMedian(rpS, start, m);
-  CPM cpm2 = ClosestPairMedian(rpS, m + 1, end);
-  CPM cpm12(abs(rpS[m + 1].second - rpS[m].second), pair<int, int>(rpS[m].first, rpS[m + 1].first));
+  int pivot = start + rand() % (end - start + 1);
+  int rd = randomDistribute(rpS, start, end, pivot);
+  CPM cpm1 = ClosestPairPivot(rpS, start, rd);
+  CPM cpm2 = ClosestPairPivot(rpS, rd + 1, end);
+  CPM cpm12(abs(rpS[rd + 1].second - rpS[rd].second), pair<int, int>(rpS[rd].first, rpS[rd + 1].first));
   return min(cpm1, cpm2, cpm12);
 }
 
 CPL ClosestPairLine(vector<S> & rpS, vector<Object*> db) {
-  CPM cpm = ClosestPairMedian(rpS, 0, rpS.size() - 1);
+  CPM cpm = ClosestPairPivot(rpS, 0, rpS.size() - 1);
   return CPL(cpm.first, pair<Object*, Object*>(db[cpm.second.first], db[cpm.second.second]));
 }
 
@@ -193,8 +184,8 @@ int main(int argc, char const *argv[]) {
   /* get n and d and f and check */
 
   // start
-  time_t start,stop;
-  start = time(NULL);
+  clock_t start,stop;
+  start = clock();
 
   int ignoreNum;
   int pixel;
@@ -229,8 +220,8 @@ int main(int argc, char const *argv[]) {
 
   fclose(inputFile);
 
-  stop = time(NULL);
-  printf("Total Use Time: %lds\n", (stop - start));
+  stop = clock();
+  printf("Total Use Time: %fs\n", (stop - start) / (CLOCKS_PER_SEC * 1.0));
 
   return 0;
 }

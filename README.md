@@ -1,11 +1,11 @@
 # Algorithm-Project2
 An Algorithm Project In SYSU Algorithm Lesson( Project 2 for calculating the Closest Pair).<br>
-Using command **make** to compile the project in **src folder**.<br>
+Using command **make** to compile the project.<br>
 And it will have two exe files called **cp***(using Algorithm 1&2&3)* and **cp2***(using Algorithm 1&2&4)*<br>
 And you can use the following commands to start the exe files, like:
 ```
-$ ./cp -d 784 -n 60000 -f db
-$ ./cp2 -d 784 -n 60000 -f db
+$ ./cp -d 784 -n 60000 -f ./src/db
+$ ./cp2 -d 784 -n 60000 -f ./src/db
 ```
 The param d is the dimensionality of one object.<br>
 The param n is the number of Objects in db to calculate the Closest Pair.<br>

@@ -33,13 +33,20 @@ ostream& operator<<(ostream& os, const Object& obj) {
   int line = sqrt(obj._d);
   for (int i = 0; i < line; ++i) {
     for (int j = 0; j < line; ++j) {
-      os << obj._val[i * line + j];
-      if (obj._val[i * line + j] >= 100) os << " ";
-      else if (obj._val[i * line + j] >= 10) os << "  ";
-      else os << "   ";
+      
+      /*
+       * another way to output:
+       * os << obj._val[i * line + j];
+       * if (obj._val[i * line + j] >= 100) os << " ";
+       * else if (obj._val[i * line + j] >= 10) os << "  ";
+       * else os << "   ";
+       */
+
+      if (obj._val[i * line + j]) os << " ";
+      else os << "*";
     }
     os << endl;
   }
-  os << endl << endl;
+  os << endl;
   return os;
 }

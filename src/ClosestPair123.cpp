@@ -163,10 +163,11 @@ pair<Object*, Object*> ClosestPair(vector<Object*> db, int m, int d) {
 
 
 int main(int argc, char const *argv[]) {
+
+  /* get n and d and f and check start */
   int n = 0, d = 0;
   string dbFileName;
 
-  /* get n and d and f and check */
   for (int i = 0; i < argc; ++i) {
     if (argv[i][0] == char('-') && argv[i][1] == char('n')) {
       n = atoi(argv[i + 1]);
@@ -179,8 +180,11 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  if ((n <= 0) || (d <= 0) ) {
-    cout << "n and d must larger than zero." << endl;
+  if (n < 2) {
+    cout << "N must larger than or equal to 2 for showing a pair." << endl;
+    return 0;
+  } else if (d <= 0) {
+    cout << "D must larger than or equal to 1. " << endl;
     return 0;
   }
 
@@ -190,12 +194,13 @@ int main(int argc, char const *argv[]) {
     cout << "Unable to open file : " << dbFileName << endl;
     return 0;
   }
-  /* get n and d and f and check */
+  /* get n and d and f and check end */
 
-  // start
+  /* start time */
   clock_t start,stop;
   start = clock();
 
+  /* prepared the database start */
   int ignoreNum;
   int pixel;
   int len = n;
@@ -214,21 +219,26 @@ int main(int argc, char const *argv[]) {
     }
     database.push_back(newOne);
   }
+  /* prepared the database end */
 
-  int m = 100;
+  /* main function to caculate the closest pair start */
+  const int m = 100; // limit m = 100
   pair<Object*, Object*> cp = ClosestPair(database, m, d);
 
   Object* one = cp.first;
   Object* two = cp.second;
 
   cout << *one << *two;
+  /* main function to caculate the closest pair end */
 
+  /* free memory and close the open file */
   for (int i = 0; i < database.size(); ++i) {
     delete database[i];
   }
 
   fclose(inputFile);
 
+  /* stop time and show the total time */
   stop = clock();
   printf("Total Use Time: %fs\n", (stop - start) / (CLOCKS_PER_SEC * 1.0));
 
